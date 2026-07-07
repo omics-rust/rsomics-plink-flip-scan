@@ -11,6 +11,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-unknown-linux-gnu
       - run: cargo fmt --all -- --check
       - run: cargo clippy --all-targets -- -D warnings
       - run: cargo test
+      # The pext bit-extract hot path is x86_64-gated; cross-check the scalar
+      # fallback so an aarch64-only build break can't ship past x86 CI.
+      - run: cargo check --target aarch64-unknown-linux-gnu
